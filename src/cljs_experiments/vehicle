@@ -1,6 +1,0 @@
-(ns cljs-experiments.vector)
-
-(defrecord Vehicle
-  [location
-   velocity
-   acceleration])
