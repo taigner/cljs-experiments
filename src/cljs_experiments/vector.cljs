@@ -15,11 +15,11 @@
 (defn norm [v]
   (Math/sqrt (dot v v)))
 
-(defn normalize [v]
-  (mult v (/ 1 (norm v))))
-
 (defn mag-squared [[x y]]
   (+ (* x x) (* y y)))
+
+(defn mag [v]
+  (Math/sqrt (mag-squared v)))
 
 (defn limit [v factor]
   (if (> (mag-squared v) (* factor factor))
@@ -33,3 +33,9 @@
 
 (defn div [[x y] n]
   [(/ x n) (/ y n)])
+
+(defn normalize [v]
+  (let [m (mag v)]
+    (if (= m 0)
+      v
+      (div v m))))
