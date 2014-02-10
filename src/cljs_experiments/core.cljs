@@ -29,7 +29,7 @@
 (def vehicle (vehicle/Vehicle. [(/ width 2) (/ height 2)] [0 -2] [0 0]))
 
 (defn init-state []
-  {:mouse [0 0]
+  {:mouse [(/ width 2) (/ height 2)]
    :vehicle vehicle})
 
 (def last-time (atom (.now js/Date)))
@@ -46,7 +46,7 @@
 
 (defn main []
   (let [now (.now js/Date)
-        dt (- now @last-time)]
+        dt (/ (- now @last-time) 10)]
     (update state dt)
     (render @state)
     (reset! last-time now)
