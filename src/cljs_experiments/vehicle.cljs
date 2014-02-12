@@ -21,12 +21,15 @@
         location (assoc velocity :location (v/add (:location velocity) (v/mult (:velocity velocity) dt)))]
     (assoc location :acceleration (v/mult (:acceleration location) 0))))
 
-(defn seek [vehicle target dt]
+(defn seek-force [vehicle target]
   (let [desired (v/sub target (:location vehicle))
         steer (v/sub (v/mult (v/normalize desired) max-speed) (:velocity vehicle))]
-    (apply-force vehicle (v/limit steer max-force))))
+    (v/limit steer max-force)))
 
-(defn separate [vehicle vehicles]
+(defn seek [vehicle target]
+  (apply-force vehicle (seek-force vehicle target)))
+
+(defn separate-force [vehicle vehicles]
   (let [location (:location vehicle)
         neighbors (find-nearby-neighbors location vehicles desired-separation)
         how-many-neighbors (count neighbors)]
@@ -35,8 +38,17 @@
             sum (sum-neighbors diff-sum)
             desired (v/mult (v/normalize (v/div sum how-many-neighbors)) max-speed)
             steer (v/limit (v/sub desired (:velocity vehicle)) max-force)]
-        (apply-force vehicle steer))
-      vehicle)))
+        steer)
+      [0 0])))
+
+(defn separate [vehicle vehicles]
+  (apply-force vehicle (separate-force vehicle vehicles)))
+
+(defn separate-and-seek [vehicle vehicles target]
+  (let [separate-force (v/mult (separate-force vehicle vehicles) 2)
+        seek-force (v/mult (seek-force vehicle target) 1)
+        separated (apply-force vehicle separate-force)]
+    (apply-force separated seek-force)))
 
 (defn- sum-neighbors [neighbors]
   (reduce (fn [res e] (v/add res e)) [0 0] neighbors))
