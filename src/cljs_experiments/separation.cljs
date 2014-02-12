@@ -1,23 +1,22 @@
 (ns cljs-experiments.separation
-  (:require [goog.dom :as dom]
-            [goog.events :as events]
+  (:require [goog.events :as events]
+            [cljs-experiments.core :as core]
             [cljs-experiments.vector :as v]
             [cljs-experiments.vehicle :as vehicle]
             [cljs-experiments.drawing :as d]))
 
 (enable-console-print!)
 
-(def canvas (dom/getElement "canvas"))
-(def ctx (.getContext canvas "2d"))
-(def width (.-width canvas))
-(def height (.-height canvas))
+(def canvas (d/canvas-from "canvas"))
+(def ctx (d/context-from canvas))
+(def width (d/width canvas))
+(def height (d/height canvas))
 
-(defn draw-mouse-pos [[x y]]
-  (d/circle ctx [x y 20] [125 125 125]))
+(defn init-state []
+  {:mouse [(/ width 2) (/ height 2)]
+   :vehicles (repeatedly 60 #(vehicle/new-random-vehicle width height))})
 
-(defn draw-vehicle [vehicle]
-  (let [[x y] (:location vehicle)]
-    (d/circle ctx [x y 6] [255 255 0])))
+(def state (atom (init-state)))
 
 (defn update! [state dt]
   (let [prev @state
@@ -25,40 +24,21 @@
         vehicles (:vehicles prev)]
     (swap! state
            assoc :vehicles
-           (map #(vehicle/borders (vehicle/update (vehicle/separate % vehicles) dt) width height) vehicles))))
+           (map #(vehicle/borders
+                  (vehicle/update (vehicle/separate % vehicles) dt)
+                  width height)
+                vehicles))))
 
-(defn random [min max]
-  (+ (* (Math/random) (- max min)) min))
-
-(defn new-vehicle []
-  (vehicle/Vehicle. [(random 0 width) (random 0 height)] [0 0] [0 0]))
-
-(defn init-state []
-  {:mouse [(/ width 2) (/ height 2)]
-   :vehicles (repeatedly 30 new-vehicle)})
-
-(def last-time (atom (.now js/Date)))
-(def state (atom (init-state)))
-
-(defn update-mouse-position [state pos]
+(defn update-mouse-position! [state pos]
   (swap! state assoc :mouse [(.-offsetX pos) (.-offsetY pos)]))
 
 (defn render [state]
-  (.clearRect ctx 0 0 width height)
+  (d/clear ctx width height)
 
-  (draw-mouse-pos (:mouse state))
-  ;(println (:vehicles state))
+  (d/draw-mouse-pos ctx (:mouse state))
   (doseq [vehicle (:vehicles state)]
-    (draw-vehicle vehicle)))
+    (d/draw-vehicle ctx (:location vehicle) :r 6)))
 
-(defn main []
-  (let [now (.now js/Date)
-        dt (/ (- now @last-time) 10)]
-    (update! state dt)
-    (render @state)
-    (reset! last-time now)
-    (.requestAnimationFrame js/window main)))
+(events/listen canvas "mousemove" #(update-mouse-position! state %))
 
-(events/listen canvas "mousemove" #(update-mouse-position state %))
-
-(main)
+(core/animate update! render state)

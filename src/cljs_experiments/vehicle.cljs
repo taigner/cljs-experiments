@@ -13,6 +13,15 @@
 
 (declare sum-neighbors steering-vectors find-nearby-neighbors)
 
+(defn random [min max]
+  (+ (* (Math/random) (- max min)) min))
+
+(defn new-vehicle [location velocity]
+  (Vehicle. location velocity [0 0]))
+
+(defn new-random-vehicle [width height]
+  (new-vehicle [(random 0 width) (random 0 height)] [0 0]))
+
 (defn apply-force [vehicle force]
   (assoc vehicle :acceleration (v/add (:acceleration vehicle) force)))
 
