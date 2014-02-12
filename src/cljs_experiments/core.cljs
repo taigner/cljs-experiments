@@ -24,7 +24,7 @@
         vehicle (:vehicle prev)
         mouse (:mouse prev)]
     (swap! state assoc :vehicle
-      (vehicle/update (vehicle/seek vehicle mouse dt) dt))))
+      (vehicle/update (vehicle/seek vehicle mouse) dt))))
 
 (def vehicle (vehicle/Vehicle. [(/ width 2) (/ height 2)] [0 -2] [0 0]))
 
