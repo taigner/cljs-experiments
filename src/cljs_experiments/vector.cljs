@@ -9,6 +9,9 @@
 (defn mult [v factor]
   (map #(* factor %) v))
 
+(defn div [[x y] n]
+  [(/ x n) (/ y n)])
+
 (defn dot [v1 v2]
   (reduce + (map * v1 v2)))
 
@@ -21,6 +24,12 @@
 (defn mag [v]
   (Math/sqrt (mag-squared v)))
 
+(defn normalize [v]
+  (let [m (mag v)]
+    (if (zero? m)
+      v
+      (div v m))))
+
 (defn limit [v factor]
   (if (> (mag-squared v) (* factor factor))
     (mult (normalize v) factor)
@@ -30,12 +39,3 @@
   (let [dx (- x1 x2)
         dy (- y1 y2)]
     (Math/sqrt (+ (* dx dx) (* dy dy)))))
-
-(defn div [[x y] n]
-  [(/ x n) (/ y n)])
-
-(defn normalize [v]
-  (let [m (mag v)]
-    (if (= m 0)
-      v
-      (div v m))))
