@@ -23,12 +23,12 @@
   (new-vehicle [(random 0 width) (random 0 height)] [0 0]))
 
 (defn apply-force [vehicle force]
-  (assoc vehicle :acceleration (v/add (:acceleration vehicle) force)))
+  (update-in vehicle [:acceleration] v/add force))
 
 (defn update [vehicle dt]
   (let [velocity (assoc vehicle :velocity (v/limit (v/add (:velocity vehicle) (:acceleration vehicle)) max-speed))
-        location (assoc velocity :location (v/add (:location velocity) (v/mult (:velocity velocity) dt)))]
-    (assoc location :acceleration (v/mult (:acceleration location) 0))))
+        location (update-in velocity [:location] v/add (v/mult (:velocity velocity) dt))]
+    (update-in location [:acceleration] v/mult 0)))
 
 (defn seek-force [vehicle target]
   (let [desired (v/sub target (:location vehicle))
@@ -42,7 +42,7 @@
   (let [location (:location vehicle)
         neighbors (find-nearby-neighbors location vehicles desired-separation)
         how-many-neighbors (count neighbors)]
-    (if (> how-many-neighbors 0)
+    (if (pos? how-many-neighbors)
       (let [diff-sum (steering-vectors location neighbors)
             sum (sum-neighbors diff-sum)
             desired (v/mult (v/normalize (v/div sum how-many-neighbors)) max-speed)
@@ -72,7 +72,7 @@
 (defn- find-nearby-neighbors [location vehicles desired-separation]
   (filter (fn [other]
     (let [d (v/distance location (:location other))]
-      (and (> d 0) (< d desired-separation)))) vehicles))
+      (and (pos? d) (< d desired-separation)))) vehicles))
 
 (defn- left-x [vehicle width height]
   (let [[x y] (:location vehicle)]
