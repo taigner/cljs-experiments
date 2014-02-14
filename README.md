@@ -15,5 +15,5 @@ Afterwards open the *.html files in a browser.
 Inspiration
 -----------
 
-See [The Nature of Code][http://natureofcode.com/] by Daniel Shiffman. Great book!
+See [The Nature of Code](http://natureofcode.com/) by Daniel Shiffman. Great book!
 
