@@ -1,6 +1,8 @@
 (defproject cljs-experiments "0.1.0-SNAPSHOT"
   :description "ClojureScript experiments"
-  :url "http://github.com/taigner"
+  :url "http://github.com/taigner/cljs-experiments"
+  :license {:name "Eclipse Public License"
+            :url "http://www.eclipse.org/legal/epl-v10.html"}
 
   :jvm-opts ^:replace ["-Xms512m" "-Xmx512m" "-server"]
 
