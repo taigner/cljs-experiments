@@ -13,13 +13,13 @@
 
   :cljsbuild {
     :builds [{:id "dev"
-              :source-paths ["src"]
+              :source-paths ["src/cljs"]
               :compiler {:optimizations :none
                          :output-to "resources/generated-dev/cljs_experiments.js"
                          :output-dir "resources/generated-dev"
                          :source-map true}}
              {:id "advanced"
-              :source-paths ["src"]
+              :source-paths ["src/cljs"]
               :compiler {:optimizations :advanced
                          :output-to "resources/generated-adv/cljs_experiments.js"
                          :output-dir "resources/generated-adv"
