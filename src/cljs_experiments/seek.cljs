@@ -34,6 +34,6 @@
   (d/draw-mouse-pos ctx (:mouse state))
   (d/draw-vehicle ctx (:location (:vehicle state))))
 
-(events/listen canvas "mousemove" #(update-mouse-position! state %))
-
-(core/animate update! render state)
+(defn ^:export main []
+  (events/listen canvas "mousemove" #(update-mouse-position! state %))
+  (core/animate update! render state))

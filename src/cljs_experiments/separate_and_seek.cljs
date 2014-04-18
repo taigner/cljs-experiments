@@ -39,6 +39,6 @@
   (doseq [vehicle (:vehicles state)]
     (d/draw-vehicle ctx (:location vehicle) :r 6)))
 
-(events/listen canvas "mousemove" #(update-mouse-position! state %))
-
-(core/animate update! render state)
+(defn ^:export main []
+  (events/listen canvas "mousemove" #(update-mouse-position! state %))
+  (core/animate update! render state))

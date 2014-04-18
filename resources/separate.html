@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ClojureScript Separation Demo</title>
+    <style type="text/css">
+    #canvas {
+      border: 1px solid black;
+    }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas" width="640" height="360"></canvas>
+
+    <script src="generated/dev/goog/base.js" type="text/javascript"></script>
+    <script src="generated/dev/cljs_experiments.js" type="text/javascript"></script>
+    <script type="text/javascript">goog.require("cljs_experiments.separation");</script>
+    <script>cljs_experiments.separation.main()</script>
+  </body>
+</html>
