@@ -15,14 +15,14 @@
     :builds [{:id "dev"
               :source-paths ["src"]
               :compiler {:optimizations :none
-                         :output-to "resources/generated/dev/cljs_experiments.js"
-                         :output-dir "resources/generated/dev"
+                         :output-to "resources/generated-dev/cljs_experiments.js"
+                         :output-dir "resources/generated-dev"
                          :source-map true}}
              {:id "advanced"
               :source-paths ["src"]
               :compiler {:optimizations :advanced
-                         :output-to "resources/generated/cljs_experiments_advanced.js"
-                         :output-dir "resources/generated"
+                         :output-to "resources/generated-adv/cljs_experiments.js"
+                         :output-dir "resources/generated-adv"
                          :externs ["resources/lib/jquery-externs.js"]
                          :pretty-print false}}
              ]})
