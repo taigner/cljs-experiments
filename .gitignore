@@ -8,3 +8,4 @@ pom.xml
 .lein-deps-sum
 *.js
 resources/generated/
+.DS_Store
