@@ -23,5 +23,6 @@
               :compiler {:optimizations :advanced
                          :output-to "resources/generated/cljs_experiments_advanced.js"
                          :output-dir "resources/generated"
+                         :externs ["resources/lib/jquery-externs.js"]
                          :pretty-print false}}
              ]})
