@@ -7,3 +7,4 @@ pom.xml
 /out/
 .lein-deps-sum
 *.js
+resources/generated/
