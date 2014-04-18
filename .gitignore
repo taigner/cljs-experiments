@@ -7,5 +7,6 @@ pom.xml
 /out/
 .lein-deps-sum
 *.js
-resources/generated/
+resources/generated-dev/
+resources/generated-adv/
 .DS_Store
