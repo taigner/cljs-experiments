@@ -6,11 +6,6 @@
    velocity
    acceleration])
 
-(def r 12)
-(def desired-separation (* r 2))
-(def max-speed 3)
-(def max-force 0.1)
-
 (declare sum-neighbors steering-vectors find-nearby-neighbors)
 
 (defn random [min max]
@@ -25,37 +20,37 @@
 (defn apply-force [vehicle force]
   (update-in vehicle [:acceleration] v/add force))
 
-(defn update [vehicle dt]
-  (let [velocity (assoc vehicle :velocity (v/limit (v/add (:velocity vehicle) (:acceleration vehicle)) max-speed))
+(defn update [vehicle dt options]
+  (let [velocity (assoc vehicle :velocity (v/limit (v/add (:velocity vehicle) (:acceleration vehicle)) (:max-speed options)))
         location (update-in velocity [:location] v/add (v/mult (:velocity velocity) dt))]
     (update-in location [:acceleration] v/mult 0)))
 
-(defn seek-force [vehicle target]
+(defn seek-force [vehicle target options]
   (let [desired (v/sub target (:location vehicle))
-        steer (v/sub (v/mult (v/normalize desired) max-speed) (:velocity vehicle))]
-    (v/limit steer max-force)))
+        steer (v/sub (v/mult (v/normalize desired) (:max-speed options)) (:velocity vehicle))]
+    (v/limit steer (:max-force options))))
 
-(defn seek [vehicle target]
-  (apply-force vehicle (seek-force vehicle target)))
+(defn seek [vehicle target options]
+  (apply-force vehicle (seek-force vehicle target options)))
 
-(defn separate-force [vehicle vehicles]
+(defn separate-force [vehicle vehicles options]
   (let [location (:location vehicle)
-        neighbors (find-nearby-neighbors location vehicles desired-separation)
+        neighbors (find-nearby-neighbors location vehicles (:desired-separation options))
         how-many-neighbors (count neighbors)]
     (if (pos? how-many-neighbors)
       (let [diff-sum (steering-vectors location neighbors)
             sum (sum-neighbors diff-sum)
-            desired (v/mult (v/normalize (v/div sum how-many-neighbors)) max-speed)
-            steer (v/limit (v/sub desired (:velocity vehicle)) max-force)]
+            desired (v/mult (v/normalize (v/div sum how-many-neighbors)) (:max-speed options))
+            steer (v/limit (v/sub desired (:velocity vehicle)) (:max-force options))]
         steer)
       [0 0])))
 
-(defn separate [vehicle vehicles]
-  (apply-force vehicle (separate-force vehicle vehicles)))
+(defn separate [vehicle vehicles options]
+  (apply-force vehicle (separate-force vehicle vehicles options)))
 
-(defn separate-and-seek [vehicle vehicles target]
-  (let [separate-force (v/mult (separate-force vehicle vehicles) 2)
-        seek-force (v/mult (seek-force vehicle target) 1)
+(defn separate-and-seek [vehicle vehicles target options]
+  (let [separate-force (v/mult (separate-force vehicle vehicles options) 2)
+        seek-force (v/mult (seek-force vehicle target options) 1)
         separated (apply-force vehicle separate-force)]
     (apply-force separated seek-force)))
 
@@ -74,35 +69,33 @@
     (let [d (v/distance location (:location other))]
       (and (pos? d) (< d desired-separation)))) vehicles))
 
-(defn- left-x [vehicle width height]
+(defn- left-x [vehicle [w h] r]
   (let [[x y] (:location vehicle)]
     (if (< x (- r))
-      (assoc vehicle :location [(+ width r) y])
+      (assoc vehicle :location [(+ w r) y])
       vehicle)))
 
-(defn- left-y [vehicle width height]
+(defn- left-y [vehicle [w h] r]
   (let [[x y] (:location vehicle)]
     (if (< y (- r))
-      (assoc vehicle :location [x (+ height r)])
+      (assoc vehicle :location [x (+ h r)])
       vehicle)))
 
-(defn- right-x [vehicle width height]
+(defn- right-x [vehicle [w h] r]
   (let [[x y] (:location vehicle)]
-    (if (> x (+ width r))
+    (if (> x (+ w r))
       (assoc vehicle :location [(- r) y])
       vehicle)))
 
-(defn- right-y [vehicle width height]
+(defn- right-y [vehicle [w h] r]
   (let [[x y] (:location vehicle)]
-    (if (> y (+ height r))
+    (if (> y (+ h r))
       (assoc vehicle :location [x (- r)])
       vehicle)))
 
-(defn borders [vehicle width height]
+(defn borders [vehicle dimensions r]
   (-> vehicle
-      (left-x width height)
-      (left-y width height)
-      (right-x width height)
-      (right-y width height)))
-
-
+      (left-x dimensions r)
+      (left-y dimensions r)
+      (right-x dimensions r)
+      (right-y dimensions r)))

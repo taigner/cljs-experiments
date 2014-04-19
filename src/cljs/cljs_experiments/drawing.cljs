@@ -26,12 +26,8 @@
   (set! (.-lineWidth ctx) "1")
   (.stroke ctx))
 
-(defn draw-mouse-pos [ctx [x y] & {:keys [r color]
-                                   :or {r 20
-                                        color [125 125 125]}}]
+(defn draw-mouse-pos [ctx [x y] r color]
   (circle ctx [x y r] color))
 
-(defn draw-vehicle [ctx [x y] & {:keys [r color]
-                                 :or {r 10
-                                      color [0 255 0]}}]
+(defn draw-vehicle [ctx [x y] r color]
   (circle ctx [x y r] color))

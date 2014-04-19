@@ -9,39 +9,43 @@
 
 (def canvas (d/canvas-from "canvas"))
 (def ctx (d/context-from canvas))
-
+(def options {:max-speed 3 :max-force 0.1 :r 6 :desired-separation 24})
 (def how-many-vehicles 30)
 
 (defn init-state []
-  (let [width (.-innerWidth js/window)
-        height (.-innerHeight js/window)]
-    {:mouse [(/ width 2) (/ height 2)]
-     :vehicles (repeatedly how-many-vehicles #(vehicle/new-random-vehicle width height))}))
+  (let [w (.-innerWidth js/window)
+        h (.-innerHeight js/window)]
+    {:mouse [(/ w 2) (/ h 2)]
+     :vehicles (repeatedly how-many-vehicles #(vehicle/new-random-vehicle w h))}))
 
-(def state (atom (init-state)))
-
-(defn update! [state dt]
+(defn update! [state dt options]
   (let [prev @state
         mouse (:mouse prev)
         vehicles (:vehicles prev)]
     (swap! state
            assoc :vehicles
            (map #(vehicle/update
-                  (vehicle/separate-and-seek % vehicles mouse)
-                  dt)
+                   (vehicle/separate-and-seek % vehicles mouse options)
+                   dt options)
                 vehicles))))
 
-(defn update-mouse-position! [state pos]
-  (swap! state assoc :mouse [(.-offsetX pos) (.-offsetY pos)]))
+(defn render [state [w h] options]
+  (d/clear ctx w h)
 
-(defn render [state width height]
-  (d/clear ctx width height)
-
-  (d/draw-mouse-pos ctx (:mouse state))
+  (d/draw-mouse-pos ctx (:mouse state) 10 [125 125 125])
   (doseq [vehicle (:vehicles state)]
-    (d/draw-vehicle ctx (:location vehicle) :r 6)))
+    (d/draw-vehicle ctx (:location vehicle) (:r options) [0 255 0])))
 
 (defn ^:export main []
   (core/init)
-  (events/listen canvas "mousemove" #(update-mouse-position! state %))
-  (core/animate update! render state (d/width canvas) (d/height canvas)))
+  (let [state (atom (init-state))
+        options-atom (atom options)
+        w (d/width canvas)
+        h (d/height canvas)]
+    (core/add-control :max-speed {:name "Max Speed" :min 0 :max 10 :step 1} options-atom)
+    (core/add-control :max-force {:name "Max Force" :min 0.0 :max 2.0 :step 0.05} options-atom)
+    (core/add-control :desired-separation {:name "Separation" :min 1 :max 50 :step 1} options-atom)
+    (core/add-control :r {:name "Radius" :min 1 :max 50 :step 1} options-atom)
+    (.on (js/jQuery "body") "mousemove" #(core/update-mouse-position! state %))
+    (core/animate #(update! state % @options-atom)
+                  #(render @state [w h] @options-atom))))
